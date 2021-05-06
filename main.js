@@ -5,6 +5,9 @@ const ITEM_FONT_SIZE = 13;
 const ITEM_PADDING = 3;
 const ITEM_HEIGHT = ITEM_FONT_SIZE * 2 + ITEM_PADDING * 2;
 
+const BG_CONTENT_OPACITY_LIGHT = 0.08;
+const BG_CONTENT_OPACITY_DARK = 0.15;
+
 const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
 
 (async function () {
@@ -67,7 +70,7 @@ const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
                 },
                 views: [
                     renderBackground(ctx),
-                    renderUpdatingTime(ctx, date),
+                    renderUpdatingTime(date, ctx),
                     renderHotNews(items, itemPerColumn, numColumn),
                 ],
             };
@@ -92,7 +95,9 @@ function renderBackgroundGradient() {
 function renderBackgroundPlatformLogo({ family, isDarkMode }) {
     // $widget接口获取的isDarkMode始终为false，获取的family有效，但在JSBox内预览时无效
     const size = family === 0 ? 30 : family === 1 ? 40 : 50;
-    const opacity = isDarkMode ? 0.3 : 0.15;
+    const opacity = isDarkMode
+        ? BG_CONTENT_OPACITY_DARK
+        : BG_CONTENT_OPACITY_LIGHT;
     // 深色模式动态图片无效
     const image = isDarkMode
         ? $image('assets/icon-light.png')
@@ -122,9 +127,11 @@ function renderBackground(ctx) {
     };
 }
 
-function renderUpdatingTime(ctx, date) {
-    const { family, isDarkMode } = ctx;
-    const opacity = isDarkMode ? 0.15 : 0.08;
+function renderUpdatingTime(date, { family, isDarkMode }) {
+    const opacity = isDarkMode
+        ? BG_CONTENT_OPACITY_DARK
+        : BG_CONTENT_OPACITY_LIGHT;
+    const fontSize = family === 0 ? 45 : family === 1 ? 70 : 90;
     return {
         type: 'vstack',
         views: [
@@ -142,7 +149,7 @@ function renderUpdatingTime(ctx, date) {
                         String(date.getHours()).padStart(2, '0') +
                         ':' +
                         String(date.getMinutes()).padStart(2, '0'),
-                    font: $font('bold', family === 0 ? 45 : 90),
+                    font: $font('bold', fontSize),
                     opacity,
                 },
             },
