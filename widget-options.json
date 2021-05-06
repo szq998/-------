@@ -1,0 +1,10 @@
+[
+    {
+        "name": "点击后停留在JSBox",
+        "value": "stay"
+    },
+    {
+        "name": "点击后跳转到Safari",
+        "value": "open-in-safari"
+    }
+]
