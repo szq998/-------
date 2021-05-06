@@ -44,7 +44,7 @@ const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
                 return {
                     type: 'zstack',
                     views: [
-                        renderBackground(),
+                        renderBackground(ctx),
                         {
                             type: 'text',
                             props: { text: '加载中...', font: $font(35) },
