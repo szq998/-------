@@ -23,7 +23,7 @@ const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
     } catch (e) {
         console.log(e);
 
-        const cached = $cache.get('data');
+        const cached = await $cache.getAsync('data');
         if (cached && cached.items && cached.date) {
             ({ items, date } = cached);
         }
@@ -43,7 +43,7 @@ const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
                 family,
             } = ctx;
 
-            if (date === null) {
+            if (!Array.isArray(items)) {
                 return {
                     type: 'zstack',
                     views: [

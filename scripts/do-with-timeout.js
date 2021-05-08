@@ -1,6 +1,17 @@
 function doWithTimeout(asyncJob, maxTime, ...args) {
     return new Promise((resolve, reject) => {
-        setTimeout(reject, maxTime);
+        setTimeout(
+            reject.bind(
+                null,
+                // setTimeout of JSBox does not support passing args
+                new Error(
+                    `Async task ${
+                        asyncJob.name ? `"${asyncJob.name}" ` : ''
+                    }is timeout`
+                )
+            ),
+            maxTime
+        );
         asyncJob(...args).then(resolve, reject);
     });
 }
