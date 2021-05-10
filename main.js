@@ -2,8 +2,10 @@ const getZhihuHot = require('./scripts/get-zhihu-hot');
 const doWithTimeout = require('./scripts/do-with-timeout');
 
 const ITEM_FONT_SIZE = 13;
-const ITEM_PADDING = 3;
-const ITEM_HEIGHT = ITEM_FONT_SIZE * 2 + ITEM_PADDING * 2;
+const MIN_ITEM_MARGIN = 3;
+const MIN_ITEM_HEIGHT = ITEM_FONT_SIZE * 2 + MIN_ITEM_MARGIN * 2;
+
+const WIDGET_TOP_BOTTOM_MARGIN = 7;
 
 const BG_CONTENT_OPACITY_LIGHT = 0.08;
 const BG_CONTENT_OPACITY_DARK = 0.15;
@@ -56,9 +58,11 @@ const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
                 };
             }
 
-            const itemPerColumn = Math.floor(
-                (displaySize.height - 10) / ITEM_HEIGHT
-            );
+            const [
+                itemPerColumn,
+                itemHeight,
+            ] = estimateItemPerColumnAndItemHeight(displaySize.height);
+
             const numColumn = family === 0 ? 1 : 2;
             const link = 'https://www.zhihu.com/billboard';
             return {
@@ -71,12 +75,29 @@ const OPEN_IN_SAFARI = $widget.inputValue === 'open-in-safari';
                 views: [
                     renderBackground(ctx),
                     renderUpdatingTime(date, ctx),
-                    renderHotNews(items, itemPerColumn, numColumn),
+                    renderHotNews(items, itemPerColumn, numColumn, itemHeight),
                 ],
             };
         },
     });
 })();
+
+function estimateItemPerColumnAndItemHeight(widgetHeight) {
+    let itemPerColumn = Math.floor(widgetHeight / MIN_ITEM_HEIGHT);
+    // estimate the space left
+    let remainingSpace = widgetHeight - itemPerColumn * MIN_ITEM_HEIGHT;
+    // make sure enough margin in the top and bottom of widget
+    if (remainingSpace < WIDGET_TOP_BOTTOM_MARGIN * 2) {
+        --itemPerColumn;
+        remainingSpace += MIN_ITEM_HEIGHT;
+    }
+    const extraRemainingSpace = remainingSpace - WIDGET_TOP_BOTTOM_MARGIN * 2;
+    // distribute the extra remaining space
+    const itemMargin =
+        MIN_ITEM_MARGIN + extraRemainingSpace / itemPerColumn / 2;
+    const itemHeight = ITEM_FONT_SIZE * 2 + itemMargin * 2;
+    return [itemPerColumn, itemHeight];
+}
 
 function renderBackgroundGradient() {
     return {
@@ -157,7 +178,7 @@ function renderUpdatingTime(date, { family, isDarkMode }) {
     };
 }
 
-function renderHotNews(items, itemPerColumn, numColumn) {
+function renderHotNews(items, itemPerColumn, numColumn, itemHeight) {
     const space = {
         type: 'spacer',
         props: { frame: { width: 10 } },
@@ -168,7 +189,8 @@ function renderHotNews(items, itemPerColumn, numColumn) {
             space,
             ...[...Array(numColumn)].map((_, i) =>
                 renderColumn(
-                    items.slice(i * itemPerColumn, (i + 1) * itemPerColumn)
+                    items.slice(i * itemPerColumn, (i + 1) * itemPerColumn),
+                    itemHeight
                 )
             ),
             space,
@@ -176,17 +198,17 @@ function renderHotNews(items, itemPerColumn, numColumn) {
     };
 }
 
-function renderColumn(items) {
+function renderColumn(items, itemHeight) {
     return {
         type: 'vstack',
         props: {
             spacing: 0, // 0 spacing，通过增大item的height来分隔，以增大点触面积
         },
-        views: items.map(renderItem),
+        views: items.map(renderItem.bind(null, itemHeight)),
     };
 }
 
-function renderItem(item) {
+function renderItem(itemHeight, item) {
     const { title, link } = item;
     return {
         type: 'text',
@@ -198,7 +220,7 @@ function renderItem(item) {
             lineLimit: 2,
             frame: {
                 maxWidth: Infinity,
-                height: ITEM_HEIGHT,
+                height: itemHeight,
                 alignment: $widget.alignment.leading,
             },
             minimumScaleFactor: 0.8,
