@@ -1,5 +1,6 @@
 const ZhihuHotURL = 'https://www.zhihu.com/billboard';
-const hotItemRegex = /"target".*?"titleArea".*?"text":"(.*?)".*?"link":.*?"url":"(.*?)"/gs;
+const hotItemRegex =
+    /"target".*?"titleArea".*?"text":"(.*?)".*?"link":.*?"url":"(.*?)"/gs;
 
 async function getZhihuHot() {
     const { error, data: hotHtml } = await $http.get({ url: ZhihuHotURL });
@@ -10,7 +11,7 @@ async function getZhihuHot() {
         throw new Error(`No readable data from ${ZhihuHotURL}`);
     }
     return [...hotHtml.matchAll(hotItemRegex)].map((item) => ({
-        title: item[1],
+        title: item[1].trim(),
         link: item[2],
     }));
 }
