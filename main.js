@@ -2,7 +2,7 @@ const getZhihuHot = require('./scripts/get-zhihu-hot');
 const doWithTimeout = require('./scripts/do-with-timeout');
 
 const ITEM_FONT_SIZE = 13;
-const MIN_ITEM_MARGIN = 3;
+const MIN_ITEM_MARGIN = 2.8;
 const MIN_ITEM_HEIGHT = ITEM_FONT_SIZE * 2 + MIN_ITEM_MARGIN * 2;
 
 const WIDGET_TOP_BOTTOM_MARGIN = 7;
