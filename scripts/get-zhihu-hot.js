@@ -11,8 +11,8 @@ async function getZhihuHot() {
         throw new Error(`No readable data from ${ZhihuHotURL}`);
     }
     return [...hotHtml.matchAll(hotItemRegex)].map((item) => ({
-        title: item[1].trim(),
-        link: item[2],
+        title: eval(`"${item[1].trim()}"`), // eval(`"${str}""`) 是为了转译str中的unicode表达（如："\\u002F"->"/"）
+        link: eval(`"${item[2]}"`),
     }));
 }
 
